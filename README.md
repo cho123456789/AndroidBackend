@@ -23,3 +23,6 @@
 - remote 패키지 : 서버 통신
     - dto -> di -> AppModule : Retrofit 설정
     - RepositoryMoudle -> 네트워크에 전달된 데이터를 각각의 UseCase로 전달
+ 
+-domain 패키지 
+    -Repository : usecase에 데이터 전달 
