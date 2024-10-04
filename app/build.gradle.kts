@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("kotlin-kapt")
+    id ("dagger.hilt.android.plugin")
+
 }
 
 android {
@@ -44,12 +47,19 @@ android {
     }
     packaging {
         resources {
+            excludes += "/META-INF/gradle/incremental.annotation.processors"
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
 }
 
 dependencies {
+    implementation("com.google.dagger:hilt-android:2.49")
+    kapt("com.google.dagger:hilt-compiler:2.48")
+
+    implementation(libs.hilt.navigation.compose)
+    implementation(libs.hilt.compiler)
+
     implementation(libs.okhttp)
     implementation(libs.okhttpConverter)
     implementation(libs.retrofit)
@@ -61,6 +71,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
