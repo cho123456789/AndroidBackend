@@ -12,6 +12,7 @@ import com.example.backendtest.presentation.TextListState
 import com.example.backendtest.remote.dto.TextDto
 import com.example.backendtest.remote.dto.toDto
 import com.example.backendtest.usecase.GetUserTextUseCase
+import com.example.backendtest.usecase.UpdateUserTextUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,28 +23,24 @@ import retrofit2.Response
 import javax.inject.Inject
 
 @HiltViewModel
-class TextViewModel @Inject constructor(
-    private val getUserTextUseCase: GetUserTextUseCase
+class TextUpdateViewModel @Inject constructor(
+    private val updateUserTextUseCase: UpdateUserTextUseCase
 ) :ViewModel(){
 
-    private val _textList = MutableStateFlow<List<TextDto>>(emptyList())
-    val textList: StateFlow<List<TextDto>> get() = _textList
 
-    private val _userName  = MutableStateFlow<String>("")
-    val userName : StateFlow<String> = _userName.asStateFlow()
+    private val _uploadState = MutableStateFlow<Resource<TextDto>>(Resource.Loading())
+    val uploadState: StateFlow<Resource<TextDto>> = _uploadState.asStateFlow()
 
-    private val _userNumber  = MutableStateFlow<Long>(1L)
-    val userNumber : StateFlow<Long> = _userNumber.asStateFlow()
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-    fun getText(userId : Long){
-        getUserTextUseCase(userId).onEach {resource->
+    fun getUpdateText(textDto: TextDto){
+        updateUserTextUseCase(textDto).onEach {resource->
             Log.d("resource",resource.data.toString())
             when(resource){
                 is Resource.Success -> {
                     val textResponse = resource.data
                     if(textResponse != null){
-                        _textList.value = textResponse
+                       _uploadState.value = resource
                     }
                 }
                 is Resource.Error -> {

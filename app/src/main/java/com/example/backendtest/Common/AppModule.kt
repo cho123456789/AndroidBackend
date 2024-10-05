@@ -1,6 +1,7 @@
 package com.example.backendtest.Common
 
 import com.example.backendtest.Common.Constants.BaseUrl
+import com.example.backendtest.Common.Constants.emBaseUrl
 import com.example.backendtest.remote.TextService
 import dagger.Module
 import dagger.Provides
@@ -18,7 +19,7 @@ class AppModule {
     @Singleton
     fun provideTextApiService(): TextService {
         return Retrofit.Builder()
-            .baseUrl(BaseUrl)
+            .baseUrl(emBaseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(TextService::class.java)

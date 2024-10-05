@@ -1,6 +1,7 @@
 package com.example.backendtest.repository.ui
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,25 +20,33 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.backendtest.presentation.viewmodel.TextUpdateViewModel
 import com.example.backendtest.presentation.viewmodel.TextViewModel
+import com.example.backendtest.remote.dto.TextDto
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun TextScreen(
-    viewModel: TextViewModel = hiltViewModel()
+    viewModel: TextViewModel = hiltViewModel(),
+    updateViewModel : TextUpdateViewModel = hiltViewModel()
 ){
-    val userIds by viewModel.userId.collectAsState()
-    val userNumberIds by viewModel.userNumber.collectAsState()
-    val userNameIds by viewModel.userName.collectAsState()
+    //val userIds by viewModel.userId.collectAsState()
+    val textDtoDL by updateViewModel.uploadState.collectAsState()
+    val textList by viewModel.textList.collectAsState() // textList 상태 관찰
 
-    val userIdT = userIds
-    val userNameT = userNameIds
-    val userNumberT = userNumberIds
+    Log.d("textList",textList.toString())
+    Log.d("textDtoDL",textDtoDL.toString())
 
-    var userId by remember { mutableStateOf(1L) }
+
+    var userId by remember { mutableStateOf("") }
     var userName by remember { mutableStateOf("") }
-    var userNumber by remember { mutableStateOf(1L) }
+    var userNumber by remember { mutableStateOf("") }
 
+
+
+    LaunchedEffect(userId) {
+        viewModel.getText(userId.toLongOrNull() ?: 0) // ID를 0으로 설정하여 안전하게 처리
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -46,11 +56,13 @@ fun TextScreen(
         OutlinedTextField(
             value = userId.toString(), // Long을 String으로 변환
             onValueChange = {
-                userId = it.toLongOrNull() ?: 1L // 입력된 문자열을 Long으로 변환, 변환 실패 시 기본값 1L
-            },            label = { Text(text = "userID") },
+                userId = (it.toLongOrNull() ?: "").toString()
+            },
+            label = { Text(text = "userID") },
             modifier = Modifier.fillMaxWidth()
-        )
 
+        )
+        // User ID 입력 후 해당하는 TextDto 찾기
         OutlinedTextField(
             value = userName,
             onValueChange = { userName = it },
@@ -59,20 +71,42 @@ fun TextScreen(
         )
 
         OutlinedTextField(
-            value = userNumber.toString(), // Long을 String으로 변환
-            onValueChange = {
-                userNumber = it.toLongOrNull() ?: 1L // 입력된 문자열을 Long으로 변환, 변환 실패 시 기본값 1L
-            },            label = { Text("User Number") },
+            value = userNumber.toString(),
+            onValueChange = { userNumber = it },
+            label = { Text("User Number") },
             modifier = Modifier.fillMaxWidth()
         )
-
         Button(
             onClick = {
-                viewModel.getText(userId,userName,userNumber)
+                val inputId = userId.toLongOrNull()
+                if (inputId != null) {
+                    val matchingUser = textList.find { it.userId == inputId }
+                    if (matchingUser != null) {
+                        userName = matchingUser.userName ?: ""
+                        userNumber = matchingUser.userNumber.toString()
+                    } else {
+                        userName = ""
+                        userNumber = ""
+                    }
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Submit")
+            Text("데이터 Get")
+        }
+        Button(
+            onClick = {
+                updateViewModel.getUpdateText(
+                    textDto = TextDto(
+                        userId = userId.toLong(),
+                        userName = userName,
+                        userNumber = userNumber.toLong()
+                    )
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("데이터 update")
         }
     }
 }
