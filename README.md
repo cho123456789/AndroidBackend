@@ -13,16 +13,6 @@
 - implementation(libs.retrofit)
 --------------------------------------------------------
 
-
-## 데이터 구조 
-
-- Common 패키지 : 유틸함수
-    - Constants :  URL 정보저장
-    - Resource  :  데이터 통신시 성공, 로딩, 실패 상태 체크
-      
-- remote 패키지 : 서버 통신
-    - dto -> di -> AppModule : Retrofit 설정
-    - RepositoryMoudle -> 네트워크에 전달된 데이터를 각각의 UseCase로 전달
- 
-- domain 패키지 
-    -Repository : usecase에 데이터 전달 
+- Post / get (backend) 연동 완료
+- 알림 기능 구현 예정  
+- delete , update 구문 추가 
